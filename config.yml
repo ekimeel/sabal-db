@@ -1,0 +1,12 @@
+name: sabal-db
+port: 6001
+node:
+  parallelism: 1
+  cache:
+    size: 100000
+    ttl-ms: 1800000
+    eager: true
+rpc:
+  port: 50051
+database:
+  path: /data/newco-sabal-db/

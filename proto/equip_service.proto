@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/ekimeel/pb";
+
+import "common.proto";
+import "equip.proto";
+
+service EquipService {
+  rpc Get (EquipUUID) returns (Equip) {}
+  rpc GetAll (ListRequest) returns (EquipList) {}
+  rpc Create (Equip) returns (Equip) {}
+  rpc Update (Equip) returns (Equip) {}
+  rpc Delete (EquipUUID) returns (DeleteResponse) {}
+}

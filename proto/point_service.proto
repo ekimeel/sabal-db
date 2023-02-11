@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/ekimeel/pb";
+
+import "common.proto";
+import "point.proto";
+import "equip.proto";
+
+service PointService {
+  rpc Get (PointUUID) returns (Point) {}
+  rpc GetAll (ListRequest) returns (PointList) {}
+  rpc Create (Point) returns (Point) {}
+  rpc Update (Point) returns (Point) {}
+  rpc Delete (PointUUID) returns (DeleteResponse) {}
+  /**/
+  rpc GetAllByEquipUUID (EquipUUID) returns (PointList) {}
+}
