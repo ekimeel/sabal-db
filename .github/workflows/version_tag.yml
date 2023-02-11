@@ -6,6 +6,8 @@ on:
 
 name: create-release
 
+permissions: read-all|write-all
+
 jobs:
   build:
     name: Create Release
