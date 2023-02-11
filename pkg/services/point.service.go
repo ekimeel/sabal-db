@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/ekimeel/db-api/pb"
+	"github.com/ekimeel/sabal-db/pb"
 )
 
 type PointService interface {

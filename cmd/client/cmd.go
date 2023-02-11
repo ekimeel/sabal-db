@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/ekimeel/db-api/pb"
+	"github.com/ekimeel/sabal-db/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

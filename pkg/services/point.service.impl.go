@@ -2,8 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github.com/ekimeel/db-api/internal/data"
-	"github.com/ekimeel/db-api/pb"
+	"github.com/ekimeel/sabal-db/internal/data"
+	"github.com/ekimeel/sabal-db/pb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

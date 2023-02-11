@@ -2,10 +2,10 @@ package bootstrap
 
 import (
 	"fmt"
-	"github.com/ekimeel/db-api/internal/env"
-	"github.com/ekimeel/db-api/pb"
-	pbapi2 "github.com/ekimeel/db-api/pkg/pbapi"
-	services2 "github.com/ekimeel/db-api/pkg/services"
+	"github.com/ekimeel/sabal-db/internal/env"
+	"github.com/ekimeel/sabal-db/pb"
+	"github.com/ekimeel/sabal-db/pkg/pbapi"
+	"github.com/ekimeel/sabal-db/pkg/services"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -75,14 +75,14 @@ func setupEnv() {
 
 func setupGrpc() {
 
-	equipService := services2.NewEquipService()
-	equipServer, err := pbapi2.NewGrpcEquipServer(equipService)
+	equipService := services.NewEquipService()
+	equipServer, err := pbapi.NewGrpcEquipServer(equipService)
 	if err != nil {
 		log.Fatal("cannot create grpc postServer: ", err)
 	}
 
-	pointService := services2.NewPointService()
-	pointServer, err := pbapi2.NewGrpcPointServer(pointService)
+	pointService := services.NewPointService()
+	pointServer, err := pbapi.NewGrpcPointServer(pointService)
 	if err != nil {
 		log.Fatal("cannot create grpc postServer: ", err)
 	}

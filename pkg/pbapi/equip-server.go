@@ -3,8 +3,8 @@ package pbapi
 import (
 	"context"
 	"errors"
-	"github.com/ekimeel/db-api/pb"
-	"github.com/ekimeel/db-api/pkg/services"
+	"github.com/ekimeel/sabal-db/pb"
+	"github.com/ekimeel/sabal-db/pkg/services"
 )
 
 type EquipServer struct {

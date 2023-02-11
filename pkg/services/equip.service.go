@@ -1,6 +1,6 @@
 package services
 
-import "github.com/ekimeel/db-api/pb"
+import "github.com/ekimeel/sabal-db/pb"
 
 type EquipService interface {
 	Get(uuid *pb.EquipUUID) (*pb.Equip, bool)
