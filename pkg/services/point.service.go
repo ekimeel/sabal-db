@@ -1,14 +1,15 @@
 package services
 
 import (
-	"github.com/ekimeel/sabal-db/pb"
+	"github.com/ekimeel/sabal-pb/pb"
 )
 
 type PointService interface {
-	Get(uuid *pb.PointUUID) (*pb.Point, bool)
+	Get(id *pb.PointId) (*pb.Point, bool)
 	GetAll() ([]*pb.Point, error)
-	Create(point *pb.Point) (*pb.Point, error)
-	Update(point *pb.Point) (*pb.Point, error)
-	Delete(uuid *pb.PointUUID) error
-	GetAllByEquipUUID(uuid *pb.EquipUUID) ([]*pb.Point, error)
+	GetOrCreate(point *pb.Point) error
+	GetAllByEquip(id *pb.EquipId) ([]*pb.Point, error)
+	Create(point *pb.Point) error
+	Update(point *pb.Point) error
+	Delete(id *pb.PointId) error
 }
