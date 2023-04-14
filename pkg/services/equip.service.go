@@ -1,11 +1,12 @@
 package services
 
-import "github.com/ekimeel/db-api/pb"
+import "github.com/ekimeel/sabal-pb/pb"
 
 type EquipService interface {
-	Get(uuid *pb.EquipUUID) (*pb.Equip, bool)
+	Get(id *pb.EquipId) (*pb.Equip, bool)
 	GetAll() ([]*pb.Equip, error)
-	Create(point *pb.Equip) (*pb.Equip, error)
-	Update(point *pb.Equip) (*pb.Equip, error)
-	Delete(uuid *pb.EquipUUID) error
+	GetOrCreate(equip *pb.Equip) error
+	Create(equip *pb.Equip) error
+	Update(equip *pb.Equip) error
+	Delete(id *pb.EquipId) error
 }

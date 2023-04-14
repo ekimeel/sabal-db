@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ekimeel/db-api/internal/bootstrap"
+import "github.com/ekimeel/sabal-db/internal/bootstrap"
 
 func main() {
 	bootstrap.Start()

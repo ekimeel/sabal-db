@@ -2,10 +2,10 @@ package bootstrap
 
 import (
 	"fmt"
-	"github.com/ekimeel/db-api/internal/env"
-	"github.com/ekimeel/db-api/pb"
-	pbapi2 "github.com/ekimeel/db-api/pkg/pbapi"
-	services2 "github.com/ekimeel/db-api/pkg/services"
+	"github.com/ekimeel/sabal-db/internal/env"
+	"github.com/ekimeel/sabal-db/pkg/pbapi"
+	"github.com/ekimeel/sabal-db/pkg/services"
+	"github.com/ekimeel/sabal-pb/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -21,7 +21,7 @@ func Start() {
 	setupLogging()
 
 	log.Info("******************************************************")
-	log.Info("Application - device-simulator")
+	log.Info("sabal-db")
 	log.Info("")
 	log.Info("(c) Michael J. Lee")
 	log.Info("Warning: Unauthorized use of this system is prohibited")
@@ -75,22 +75,29 @@ func setupEnv() {
 
 func setupGrpc() {
 
-	equipService := services2.NewEquipService()
-	equipServer, err := pbapi2.NewGrpcEquipServer(equipService)
+	equipService := services.GetEquipService()
+	equipServer, err := pbapi.NewGrpcEquipServer(equipService)
 	if err != nil {
-		log.Fatal("cannot create grpc postServer: ", err)
+		log.Fatal("cannot create grpc equipServer: ", err)
 	}
 
-	pointService := services2.NewPointService()
-	pointServer, err := pbapi2.NewGrpcPointServer(pointService)
+	pointService := services.GetPointService()
+	pointServer, err := pbapi.NewGrpcPointServer(pointService)
 	if err != nil {
-		log.Fatal("cannot create grpc postServer: ", err)
+		log.Fatal("cannot create grpc pointServer: ", err)
+	}
+
+	metricService := services.GetMetricService()
+	metricServer, err := pbapi.NewGrpcMetricServer(metricService)
+	if err != nil {
+		log.Fatal("cannot create grpc metricServer: ", err)
 	}
 
 	grpcServer := grpc.NewServer()
 
 	pb.RegisterEquipServiceServer(grpcServer, equipServer)
 	pb.RegisterPointServiceServer(grpcServer, pointServer)
+	pb.RegisterMetricServiceServer(grpcServer, metricServer)
 
 	reflection.Register(grpcServer)
 

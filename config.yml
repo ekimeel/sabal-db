@@ -9,4 +9,12 @@ node:
 rpc:
   port: 50051
 database:
-  path: /data/newco-sabal-db/
+  path: /storage/newco-sabal-db/
+  storage:
+    collection:
+    time:
+      partition-size: 1h
+      retention: 168h
+      precision: 1s
+
+

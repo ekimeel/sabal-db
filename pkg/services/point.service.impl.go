@@ -1,69 +1,92 @@
 package services
 
 import (
-	"fmt"
-	"github.com/ekimeel/db-api/internal/data"
-	"github.com/ekimeel/db-api/pb"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/ekimeel/sabal-db/internal/storage"
+	"github.com/ekimeel/sabal-pb/pb"
+	log "github.com/sirupsen/logrus"
+	"sync"
 )
 
 type PointServiceImpl struct {
-	data data.Collection[*pb.Point]
+	data *storage.Collection[uint32, *pb.Point]
 }
 
-func NewPointService() PointService {
-	s := &PointServiceImpl{}
-	s.data = data.NewCollection[*pb.Point](0)
-	return s
+var pointServiceInstance *PointServiceImpl
+var pointServiceOnce sync.Once
+
+func GetPointService() PointService {
+
+	pointServiceOnce.Do(func() {
+		log.Tracef("creating [%s] once", "pointServiceInstance")
+
+		pointServiceInstance = &PointServiceImpl{}
+		pointServiceInstance.data = storage.NewCollection[uint32, *pb.Point]("point", 0,
+			storage.NewSerialKeyGenerator(0))
+	})
+
+	return pointServiceInstance
 }
 
-func createKeyWithPoint(point *pb.Point) string {
-	return fmt.Sprintf("%s:%s", point.EquipUuid, point.Name)
-}
+func (s *PointServiceImpl) Create(point *pb.Point) error {
+	log.Tracef("Create: %s", point.String())
 
-func createKeyWithPointUUID(point *pb.PointUUID) string {
-	return fmt.Sprintf("%s:%s", point.EquipUuid, point.Name)
-}
-
-func (s *PointServiceImpl) Create(point *pb.Point) (*pb.Point, error) {
-
-	point.DateCreated = timestamppb.Now()
-	point.LastUpdated = timestamppb.Now()
-
-	err := s.data.Create(createKeyWithPoint(point), point)
+	id, err := s.data.Create(point)
 	if err != nil {
-		return point, nil
+		log.Errorf("failed to create point: %s", err)
+		return err
 	}
 
-	return point, err
+	point.Id = id
+	return nil
 }
 
-func (s *PointServiceImpl) Update(point *pb.Point) (*pb.Point, error) {
-	point.LastUpdated = timestamppb.Now()
+func (s *PointServiceImpl) Update(point *pb.Point) error {
+	log.Tracef("Update: %s", point.String())
 
-	err := s.data.Replace(createKeyWithPoint(point), point)
+	err := s.data.Replace(point.Id, point)
 	if err != nil {
-		return point, nil
+		return err
 	}
 
-	return point, err
+	return nil
 }
 
-func (s *PointServiceImpl) Get(uuid *pb.PointUUID) (*pb.Point, bool) {
-	return s.data.Get(createKeyWithPointUUID(uuid))
+func (s *PointServiceImpl) Get(id *pb.PointId) (*pb.Point, bool) {
+	log.Tracef("Get: %s", id.String())
+	return s.data.Get(id.GetId())
 }
 
 func (s *PointServiceImpl) GetAll() ([]*pb.Point, error) {
+	log.Tracef("GetAll")
 	return s.data.Values(), nil
 }
 
-func (s *PointServiceImpl) Delete(uuid *pb.PointUUID) error {
-	return s.data.Remove(createKeyWithPointUUID(uuid))
+func (s *PointServiceImpl) GetOrCreate(point *pb.Point) error {
+	log.Infof("GetOrCreate: %s", point.String())
+
+	existing, loaded := s.Get(&pb.PointId{Id: point.GetId()})
+
+	if loaded {
+		point = existing
+	} else {
+		err := s.Create(point)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func (s *PointServiceImpl) GetAllByEquipUUID(equipUUID *pb.EquipUUID) ([]*pb.Point, error) {
-	result := s.data.Filter(func(s string, point *pb.Point) bool {
-		return point.EquipUuid == equipUUID.Id
+func (s *PointServiceImpl) Delete(id *pb.PointId) error {
+	log.Tracef("Delete: %s", id.String())
+	return s.data.Remove(id.GetId())
+}
+
+func (s *PointServiceImpl) GetAllByEquip(id *pb.EquipId) ([]*pb.Point, error) {
+	log.Tracef("GetAllByEquip: %s", id.String())
+	result := s.data.Filter(func(s uint32, point *pb.Point) bool {
+		return point.EquipId == id.Id
 	})
 
 	return result, nil
