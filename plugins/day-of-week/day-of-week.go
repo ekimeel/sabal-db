@@ -1,9 +1,10 @@
-package plugins
+package day_of_week
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/ekimeel/sabal-db/internal/storage"
+	"github.com/ekimeel/sabal-db/plugins"
 	"github.com/ekimeel/sabal-pb/pb"
 	log "github.com/sirupsen/logrus"
 	"math"
@@ -87,7 +88,7 @@ func (d *DayOfWeekPlugin) Get(metric uint32) *DayOfWeek {
 	return dow
 }
 
-func (d *DayOfWeekPlugin) Run(env *Environment) error {
+func (d *DayOfWeekPlugin) Run(env *plugins.Environment) error {
 	log.Infof("running plugin: %s", "DayOfWeek")
 	metricService := env.MetricService
 	pointService := env.PointService
@@ -170,4 +171,8 @@ func (d *DayOfWeek) String() string {
 		return "error"
 	}
 	return string(s)
+}
+
+func weightedAverage(value1, weight1, value2, weight2 float64) float64 {
+	return (value1*weight1 + value2*weight2) / (weight1 + weight2)
 }

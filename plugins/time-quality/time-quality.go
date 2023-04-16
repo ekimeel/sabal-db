@@ -1,4 +1,4 @@
-package main
+package time_quality
 
 import (
 	"encoding/json"

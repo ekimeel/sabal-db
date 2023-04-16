@@ -22,6 +22,17 @@ func (s *MetricServer) Write(ctx context.Context, metric *pb.Metric) (*pb.Metric
 	return r, nil
 }
 
+func (s *MetricServer) WriteList(ctx context.Context, metricList *pb.MetricList) (*pb.MetricWriteResponse, error) {
+	r := &pb.MetricWriteResponse{Accepted: false}
+	accepted, err := s.service.WriteList(metricList)
+	if err != nil {
+		return r, err
+	}
+	r.Accepted = accepted
+
+	return r, nil
+}
+
 func (s *MetricServer) Poll(ctx context.Context, id *pb.PointId) (*pb.Metric, error) {
 	return s.service.Poll(id)
 }
