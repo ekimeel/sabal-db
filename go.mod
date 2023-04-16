@@ -3,7 +3,7 @@ module github.com/ekimeel/sabal-db
 go 1.19
 
 require (
-	github.com/ekimeel/sabal-pb v0.1.7
+	github.com/ekimeel/sabal-pb v0.1.9
 	github.com/ekimeel/tstorage v0.1.13
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.1

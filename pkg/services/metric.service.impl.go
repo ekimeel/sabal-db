@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/ekimeel/sabal-pb/pb"
 	"github.com/ekimeel/tstorage/pkg/tstorage"
 	log "github.com/sirupsen/logrus"
@@ -46,7 +47,7 @@ func (s *MetricServiceImpl) Write(metric *pb.Metric) (bool, error) {
 			Metric: metric.PointId,
 			DataPoint: tstorage.DataPoint{
 				Timestamp: metric.Timestamp.Seconds,
-				Value:     (metric.Value),
+				Value:     metric.Value,
 			},
 		},
 	})
@@ -55,6 +56,31 @@ func (s *MetricServiceImpl) Write(metric *pb.Metric) (bool, error) {
 	}
 
 	return true, err
+}
+
+func (s *MetricServiceImpl) WriteList(metricList *pb.MetricList) (bool, error) {
+	rows := make([]tstorage.Row, len(metricList.Metrics))
+
+	for i, metric := range metricList.Metrics {
+		if metric.Timestamp == nil {
+			return false, fmt.Errorf("nil timestamp at %d", i)
+		}
+		rows[i] = tstorage.Row{
+			Metric: metric.PointId,
+			DataPoint: tstorage.DataPoint{
+				Timestamp: metric.Timestamp.Seconds,
+				Value:     metric.Value,
+			},
+		}
+	}
+
+	err := s.storage.InsertRows(rows)
+	if err != nil {
+		return false, err
+	}
+
+	return true, err
+
 }
 
 func (s *MetricServiceImpl) Poll(id *pb.PointId) (*pb.Metric, error) {

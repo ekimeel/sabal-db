@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"github.com/ekimeel/sabal-pb/pb"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	log "github.com/sirupsen/logrus"
+	"gonum.org/v1/gonum/stat/distuv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -29,7 +30,7 @@ func main() {
 		panic(err)
 	}
 
-	pointA, _ := pointClient.Create(context.Background(), &pb.Point{Name: "point-a", EquipId: equip.Id})
+	_, _ = pointClient.Create(context.Background(), &pb.Point{Name: "point-a", EquipId: equip.Id})
 	_, _ = pointClient.Create(context.Background(), &pb.Point{Name: "point-b", EquipId: equip.Id})
 	_, _ = pointClient.Create(context.Background(), &pb.Point{Name: "point-c", EquipId: equip.Id})
 	_, _ = pointClient.Create(context.Background(), &pb.Point{Name: "point-d", EquipId: equip.Id})
@@ -48,20 +49,48 @@ func main() {
 
 	log.Printf("pointList: %v", pointList)
 
-	for i := 0; i < 100000; i++ {
-		r, err := metricClient.Write(
-			context.Background(),
-			&pb.Metric{PointId: pointA.Id, Timestamp: timestamppb.Now(), Value: float64(i)})
-		if err != nil {
-			panic(err)
+	clock := time.Now()
+
+	writeBuffer := &pb.MetricList{}
+	writeBuffer.Metrics = make([]*pb.Metric, 0, 5000)
+
+	for i := 0; i < (40000); i++ {
+		clock = clock.Add(1 * time.Minute)
+
+		for _, point := range pointList.Points {
+			value := distuv.Normal{Mu: 55, Sigma: 5}
+
+			writeBuffer.Metrics = append(writeBuffer.Metrics, &pb.Metric{
+				PointId:   point.Id,
+				Value:     value.Rand(),
+				Timestamp: &timestamp.Timestamp{Seconds: clock.Unix()}})
+
 		}
 
-		last, err := metricClient.Poll(context.Background(), &pb.PointId{Id: pointA.Id})
-		if last != nil {
-			log.Printf("r: %v, poll:%f, ts:%s", r, last.Value, last.Timestamp)
+		if len(writeBuffer.Metrics) >= 5000 {
+			start := time.Now()
+			ok, err := metricClient.WriteList(context.Background(), writeBuffer)
+			log.Printf("write: %v, %s", len(writeBuffer.Metrics), time.Since(start))
+			writeBuffer.Metrics = nil
+			writeBuffer.Metrics = make([]*pb.Metric, 0, 5000)
+
+			if err != nil {
+				panic(err)
+			}
+			if ok.Accepted == false {
+				panic("failed to accept write")
+			}
 		}
 
-		time.Sleep(10 * time.Millisecond)
+	}
+	start := time.Now()
+	ok, err := metricClient.WriteList(context.Background(), writeBuffer)
+	log.Printf("write: %v, %s", len(writeBuffer.Metrics), time.Since(start))
+	if err != nil {
+		panic(err)
+	}
+	if ok.Accepted == false {
+		panic("failed to accept write")
 	}
 
 }

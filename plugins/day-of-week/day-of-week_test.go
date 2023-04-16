@@ -1,8 +1,9 @@
-package plugins
+package day_of_week
 
 import (
 	"fmt"
 	"github.com/ekimeel/sabal-db/pkg/services"
+	"github.com/ekimeel/sabal-db/plugins"
 	"github.com/ekimeel/sabal-pb/pb"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/stretchr/testify/assert"
@@ -57,7 +58,7 @@ func TestName(t *testing.T) {
 	}
 	fmt.Printf("count: %d", count)
 	_ = metricService.Flush()
-	err = plugin.Run(&Environment{
+	err = plugin.Run(&plugins.Environment{
 		MetricService: services.GetMetricService(),
 		PointService:  services.GetPointService(),
 		EquipService:  services.GetEquipService()})
